@@ -9,6 +9,8 @@ import authRoutes from './modules/auth/auth.routes.js';
 import userRoutes from './modules/users/user.routes.js';
 import uploadRoutes from './modules/uploads/upload.routes.js';
 import postRoutes from './modules/posts/post.routes.js';
+import messagingRoutes from './modules/messaging/messaging.routes.js';
+import notificationRoutes from './modules/notifications/notification.routes.js';
 
 export function createApp(): express.Application {
   const app = express();
@@ -38,6 +40,8 @@ export function createApp(): express.Application {
   app.use('/api/v1', userRoutes);
   app.use('/api/v1', uploadRoutes);
   app.use('/api/v1', postRoutes);
+  app.use('/api/v1', messagingRoutes);
+  app.use('/api/v1', notificationRoutes);
 
   // Error handling (must be last)
   app.use(errorHandler);

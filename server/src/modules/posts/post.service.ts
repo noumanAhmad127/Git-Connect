@@ -2,6 +2,8 @@ import { Post, type IPost } from './post.model.js';
 import { Comment } from './comment.model.js';
 import { User } from '../auth/user.model.js';
 import { AppError } from '../../shared/errors/AppError.js';
+import { createNotification } from '../notifications/notification.service.js';
+import { emitToUser } from '../../socket/index.js';
 
 interface PostResponse {
   id: string;
@@ -173,6 +175,13 @@ export async function toggleLike(
   } else {
     post.likes.push(userId as any);
     post.likeCount += 1;
+    const notif = await createNotification(
+      post.author.toString(),
+      'like',
+      userId,
+      `/posts/${postId}`,
+    );
+    if (notif) emitToUser(post.author.toString(), 'notification', notif);
   }
 
   await post.save();
@@ -263,6 +272,14 @@ export async function createComment(
 
   post.commentCount += 1;
   await post.save();
+
+  const notif = await createNotification(
+    post.author.toString(),
+    'comment',
+    authorId,
+    `/posts/${postId}`,
+  );
+  if (notif) emitToUser(post.author.toString(), 'notification', notif);
 
   const populated = await comment.populate('author', 'name username avatar');
   return {

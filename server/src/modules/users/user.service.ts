@@ -1,5 +1,7 @@
 import { User } from '../auth/user.model.js';
 import { AppError } from '../../shared/errors/AppError.js';
+import { createNotification } from '../notifications/notification.service.js';
+import { emitToUser } from '../../socket/index.js';
 
 interface PublicProfile {
   id: string;
@@ -208,6 +210,13 @@ export async function toggleFollow(
     await User.findByIdAndUpdate(followerId, {
       $push: { following: followerObjectId },
     });
+    const notif = await createNotification(
+      target._id.toString(),
+      'follow',
+      followerId,
+      `/developers/${targetUsername}`,
+    );
+    if (notif) emitToUser(target._id.toString(), 'notification', notif);
   }
 
   await target.save();
