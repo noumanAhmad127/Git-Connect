@@ -1,17 +1,16 @@
 import type { Request, Response, NextFunction } from 'express';
 import { UnauthorizedError } from '../errors/UnauthorizedError.js';
+import { verifyAccessToken } from '../../modules/auth/auth.service.js';
 
 export function authenticate(req: Request, _res: Response, next: NextFunction): void {
-  const cookies = req.cookies as Record<string, string | undefined> | undefined;
   const authHeader = req.headers.authorization;
-  const bearerToken =
-    typeof authHeader === 'string' ? authHeader.replace('Bearer ', '') : undefined;
-  const token = cookies?.session_token ?? bearerToken;
+  const token = typeof authHeader === 'string' ? authHeader.replace('Bearer ', '') : undefined;
 
   if (!token) {
-    throw new UnauthorizedError();
+    throw new UnauthorizedError('No token provided');
   }
 
-  // Better Auth session validation will be added here
+  const payload = verifyAccessToken(token);
+  req.userId = payload.userId;
   next();
 }

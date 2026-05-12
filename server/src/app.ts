@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import { corsOptions } from './config/cors.js';
 import { apiLimiter } from './shared/middleware/rateLimiter.js';
 import { errorHandler } from './shared/middleware/errorHandler.js';
+import authRoutes from './modules/auth/auth.routes.js';
 
 export function createApp(): express.Application {
   const app = express();
@@ -29,7 +30,8 @@ export function createApp(): express.Application {
     res.json({ success: true, data: { status: 'ok', timestamp: new Date().toISOString() } });
   });
 
-  // API routes will be registered here
+  // API routes
+  app.use('/api/v1', authRoutes);
 
   // Error handling (must be last)
   app.use(errorHandler);
