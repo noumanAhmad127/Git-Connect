@@ -1,10 +1,13 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { ProtectedRoute } from '@/components/common/ProtectedRoute';
 import LoginPage from '@/pages/LoginPage';
 import RegisterPage from '@/pages/RegisterPage';
 import ForgotPasswordPage from '@/pages/ForgotPasswordPage';
 import ResetPasswordPage from '@/pages/ResetPasswordPage';
 import VerifyEmailPage from '@/pages/VerifyEmailPage';
+import DevelopersPage from '@/pages/DevelopersPage';
+import ProfilePage from '@/pages/ProfilePage';
+import FeedPage from '@/pages/FeedPage';
+import PostDetailPage from '@/pages/PostDetailPage';
 
 function App() {
   return (
@@ -24,17 +27,13 @@ function App() {
         <Route path="/reset-password" element={<ResetPasswordPage />} />
         <Route path="/verify-email" element={<VerifyEmailPage />} />
 
-        {/* Protected routes */}
-        <Route
-          path="/feed"
-          element={
-            <ProtectedRoute>
-              <div className="text-muted-foreground flex min-h-screen items-center justify-center text-lg">
-                Feed — Coming soon
-              </div>
-            </ProtectedRoute>
-          }
-        />
+        {/* Developer routes (public) */}
+        <Route path="/developers" element={<DevelopersPage />} />
+        <Route path="/developers/:username" element={<ProfilePage />} />
+
+        {/* Post routes — public, but feed is protected */}
+        <Route path="/posts/:id" element={<PostDetailPage />} />
+        <Route path="/feed" element={<FeedPage />} />
       </Routes>
     </BrowserRouter>
   );

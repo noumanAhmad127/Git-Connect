@@ -6,6 +6,9 @@ import { corsOptions } from './config/cors.js';
 import { apiLimiter } from './shared/middleware/rateLimiter.js';
 import { errorHandler } from './shared/middleware/errorHandler.js';
 import authRoutes from './modules/auth/auth.routes.js';
+import userRoutes from './modules/users/user.routes.js';
+import uploadRoutes from './modules/uploads/upload.routes.js';
+import postRoutes from './modules/posts/post.routes.js';
 
 export function createApp(): express.Application {
   const app = express();
@@ -32,6 +35,9 @@ export function createApp(): express.Application {
 
   // API routes
   app.use('/api/v1', authRoutes);
+  app.use('/api/v1', userRoutes);
+  app.use('/api/v1', uploadRoutes);
+  app.use('/api/v1', postRoutes);
 
   // Error handling (must be last)
   app.use(errorHandler);

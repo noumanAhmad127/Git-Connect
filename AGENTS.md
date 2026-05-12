@@ -64,11 +64,11 @@ GitConnect/
 
 ### Why This Structure?
 
-| Alternative | Trade-off | Our Choice |
-|---|---|---|
-| Flat (everything in one folder) | No sharing, duplication | ❌ |
-| Separate repos | Versioning hell, context switching | ❌ |
-| Monorepo with workspaces | Clean sharing, unified linting | ✅ |
+| Alternative                     | Trade-off                          | Our Choice |
+| ------------------------------- | ---------------------------------- | ---------- |
+| Flat (everything in one folder) | No sharing, duplication            | ❌         |
+| Separate repos                  | Versioning hell, context switching | ❌         |
+| Monorepo with workspaces        | Clean sharing, unified linting     | ✅         |
 
 ### npm Workspaces in Practice
 
@@ -105,6 +105,7 @@ shared/src/
 ```
 
 **Key Pattern**: Zod schemas are defined once and used for:
+
 1. Server-side request validation (in Express middleware)
 2. Client-side form validation (same rules, same error messages)
 3. TypeScript type inference via `z.infer<>`
@@ -167,6 +168,7 @@ client/src/
 ### TypeScript (strict mode)
 
 **Why**: Non-negotiable in modern production apps. Strict mode (`strict: true`) enables:
+
 - `noUncheckedIndexedAccess` — forces handling of potentially undefined object access
 - `noImplicitOverride` — prevents accidental override of class methods
 - `noUnusedLocals`/`noUnusedParameters` — keeps code clean
@@ -278,7 +280,7 @@ type RegisterInput = z.infer<typeof registerSchema>;
 ### 5.6 Discriminated Unions for Errors
 
 ```typescript
-type ApiResult<T> = 
+type ApiResult<T> =
   | { success: true; data: T }
   | { success: false; error: { code: string; message: string } };
 ```
@@ -290,6 +292,7 @@ type ApiResult<T> =
 ### 6.1 Module Structure
 
 Each feature lives in `server/src/modules/<feature>/` and exports:
+
 - `*.model.ts` — Mongoose schema
 - `*.controller.ts` — Route handlers (thin, delegates to service)
 - `*.service.ts` — Business logic (testable)
@@ -309,6 +312,7 @@ Each middleware layer adds security or parsing before routes are hit. The error 
 ### 6.3 App Factory Pattern
 
 The `createApp()` function returns a configured Express app. This is a **factory pattern** — it allows:
+
 - Creating a fresh app for each test
 - Avoiding global state
 - Clean separation of configuration from startup
@@ -330,6 +334,7 @@ Express 4 does not catch async errors. This wrapper ensures every rejected promi
 ### 7.1 Vite + React
 
 Vite is the modern alternative to Create React App (deprecated). It provides:
+
 - Instant server start with native ESM
 - Fast Hot Module Replacement (HMR)
 - Optimized builds with Rollup
@@ -340,6 +345,7 @@ Vite is the modern alternative to Create React App (deprecated). It provides:
 **Store setup**: `configureStore()` with the API middleware. Dev tools enabled in development only.
 
 **RTK Query base**: The `api.ts` file creates the base API instance with:
+
 - `fetchBaseQuery` configured for the API URL and credentials
 - `prepareHeaders` to attach auth tokens
 - `tagTypes` for cache invalidation
@@ -349,6 +355,7 @@ Feature modules extend this with `injectEndpoints()` to add their specific endpo
 ### 7.3 Routing
 
 React Router v7 with nested routes:
+
 - Public routes (Landing, Login, Register, Developers list, Public profiles, Posts)
 - Protected routes (Feed, Messages, Settings, Notifications)
 - Admin routes (separate `/admin/*`)
@@ -356,6 +363,7 @@ React Router v7 with nested routes:
 ### 7.4 shadcn/ui Component Pattern
 
 shadcn/ui components are copied into `client/src/components/ui/` and customized. Each component:
+
 - Uses `cn()` utility for className merging (handles Tailwind conflicts)
 - Is fully typed with TypeScript
 - Supports the `asChild` pattern from Radix UI for composition
@@ -381,18 +389,18 @@ Every API response follows this structure:
 
 ### 8.2 HTTP Status Codes
 
-| Code | When |
-|------|------|
-| 200 | Success (GET, PATCH) |
-| 201 | Created (POST) |
-| 204 | No content (DELETE) |
-| 400 | Validation error |
-| 401 | Unauthenticated |
-| 403 | Unauthorized (wrong role) |
-| 404 | Resource not found |
-| 409 | Conflict (duplicate email) |
-| 429 | Rate limited |
-| 500 | Server error |
+| Code | When                       |
+| ---- | -------------------------- |
+| 200  | Success (GET, PATCH)       |
+| 201  | Created (POST)             |
+| 204  | No content (DELETE)        |
+| 400  | Validation error           |
+| 401  | Unauthenticated            |
+| 403  | Unauthorized (wrong role)  |
+| 404  | Resource not found         |
+| 409  | Conflict (duplicate email) |
+| 429  | Rate limited               |
+| 500  | Server error               |
 
 ### 8.3 URL Structure
 
@@ -426,12 +434,14 @@ Error
 ### 9.2 Global Error Handler
 
 The `errorHandler` middleware:
+
 1. Checks if error is `AppError` → returns structured JSON with status code
 2. Otherwise → logs the error with Pino, returns 500 with generic message
 
 ### 9.3 Attempt vs Result Pattern
 
 Functions that can fail return their result type rather than throwing:
+
 - `parsePagination()` returns a safe default if parsing fails
 - Zod validation returns structured error details on failure
 
@@ -475,6 +485,7 @@ This is the MERN equivalent of Rails' `has_many :followers, through: :follows`.
 ### 10.4 Nested Comments
 
 Comments use a `parent` field referencing another Comment:
+
 - `parent: null` → top-level comment
 - `parent: ObjectId` → reply
 - `depth: number` → prevents nesting beyond 2 levels
@@ -497,13 +508,13 @@ Better Auth handles the complete auth lifecycle:
 
 ### 12.1 Code Quality
 
-| Tool | Purpose |
-|---|---|
-| ESLint | Catch bugs & enforce style (`@typescript-eslint/strict-type-checked`) |
-| Prettier | Auto-format code (single quotes, trailing commas, 100 width) |
-| Husky | Git hooks — runs `lint-staged` before every commit |
-| lint-staged | Only lint/format changed files (fast) |
-| TypeScript strict | Prevent entire categories of bugs at compile time |
+| Tool              | Purpose                                                               |
+| ----------------- | --------------------------------------------------------------------- |
+| ESLint            | Catch bugs & enforce style (`@typescript-eslint/strict-type-checked`) |
+| Prettier          | Auto-format code (single quotes, trailing commas, 100 width)          |
+| Husky             | Git hooks — runs `lint-staged` before every commit                    |
+| lint-staged       | Only lint/format changed files (fast)                                 |
+| TypeScript strict | Prevent entire categories of bugs at compile time                     |
 
 ### 12.2 Security
 
@@ -518,6 +529,7 @@ Better Auth handles the complete auth lifecycle:
 ### 12.3 Logging
 
 Pino is configured with:
+
 - `level: 'info'` in production, `'debug'` in development
 - Pretty printing in development (`pino-pretty`)
 - Sensitive fields redacted (`req.headers.authorization`, `req.headers.cookie`)
@@ -555,6 +567,7 @@ npm run format           # Prettier write all files
 ### Commit Convention
 
 We use [conventional commits](https://www.conventionalcommits.org/):
+
 - `feat:` — new feature
 - `fix:` — bug fix
 - `chore:` — tooling, dependencies
@@ -565,18 +578,18 @@ We use [conventional commits](https://www.conventionalcommits.org/):
 
 ## 14. Glossary
 
-| Term | Definition |
-|---|---|
-| **Monorepo** | Single repository containing multiple packages/projects |
-| **Workspace** | npm workspaces — linked packages in a monorepo |
-| **RTK Query** | Redux Toolkit's data fetching and caching layer |
-| **Zod** | TypeScript-first schema validation library |
-| **shadcn/ui** | Copy-paste React component library (not a dependency) |
-| **JWT** | JSON Web Token — stateless auth token format |
-| **Polymorphic association** | A reference that can point to different model types |
-| **Denormalization** | Storing redundant data (like likeCount) for query performance |
-| **Population** | Mongoose's equivalent of SQL JOIN — replaces ObjectId refs with actual documents |
-| **Helmet** | Express middleware that sets secure HTTP headers |
-| **Pino** | Fast structured JSON logger for Node.js |
-| **Resend** | Email API service for transactional emails |
-| **Middleware pipeline** | Ordered chain of functions that process HTTP requests in Express |
+| Term                        | Definition                                                                       |
+| --------------------------- | -------------------------------------------------------------------------------- |
+| **Monorepo**                | Single repository containing multiple packages/projects                          |
+| **Workspace**               | npm workspaces — linked packages in a monorepo                                   |
+| **RTK Query**               | Redux Toolkit's data fetching and caching layer                                  |
+| **Zod**                     | TypeScript-first schema validation library                                       |
+| **shadcn/ui**               | Copy-paste React component library (not a dependency)                            |
+| **JWT**                     | JSON Web Token — stateless auth token format                                     |
+| **Polymorphic association** | A reference that can point to different model types                              |
+| **Denormalization**         | Storing redundant data (like likeCount) for query performance                    |
+| **Population**              | Mongoose's equivalent of SQL JOIN — replaces ObjectId refs with actual documents |
+| **Helmet**                  | Express middleware that sets secure HTTP headers                                 |
+| **Pino**                    | Fast structured JSON logger for Node.js                                          |
+| **Resend**                  | Email API service for transactional emails                                       |
+| **Middleware pipeline**     | Ordered chain of functions that process HTTP requests in Express                 |
