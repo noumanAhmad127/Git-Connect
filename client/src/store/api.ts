@@ -25,6 +25,7 @@ export const api = createApi({
     'Notifications',
     'Messages',
     'Conversations',
+    'Search',
   ],
   endpoints: () => ({}),
 });

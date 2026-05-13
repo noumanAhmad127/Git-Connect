@@ -37,7 +37,7 @@ This project teaches:
 - **Mongoose 9** schema design with relationships, indexes, and denormalization
 - **React 19** with modern patterns (hooks, context, lazy loading)
 - **Redux Toolkit + RTK Query** for state management with automatic caching
-- **Better Auth** for authentication (email verification, JWT, sessions)
+- **Custom JWT + bcryptjs** for authentication (email verification, JWT access/refresh tokens, sessions)
 - **Tailwind CSS 4 + shadcn/ui** for professional UI
 - **Socket.IO** for real-time notifications and messaging
 - **Zod** for runtime validation shared between client and server
@@ -181,11 +181,11 @@ client/src/
 
 **Key Mongoose patterns**: `refPath` for polymorphic associations (Activity feed), denormalized counts (likeCount), selective population.
 
-### Better Auth
+### Custom JWT + bcryptjs
 
-**Why**: Framework-agnostic auth library that handles email/password, OAuth, 2FA, email verification, password reset, and session management out of the box. Uses MongoDB adapter for persistence.
+**Why**: Full control over the auth flow with no external auth framework dependency. bcryptjs handles password hashing (10 salt rounds), jsonwebtoken handles short-lived access tokens (15min) and long-lived refresh tokens (7d). Node `crypto` generates email verification and password reset tokens.
 
-**Compared to custom JWT**: Better Auth gives us production-grade auth without reinventing the wheel — session rotation, rate limiting on auth endpoints, and security best practices built in.
+**Compared to Better Auth**: Initially evaluated Better Auth but found it lacked a stable Express adapter for the project's needs. The custom implementation is simpler, fully transparent, and provides the same core features — registration with email verification, login with JWT pair, password reset, and token-based session management.
 
 ### Redux Toolkit + RTK Query
 
@@ -494,13 +494,13 @@ Comments use a `parent` field referencing another Comment:
 
 ## 11. Authentication Flow
 
-Better Auth handles the complete auth lifecycle:
+The app uses a custom authentication system built with `bcryptjs`, `jsonwebtoken`, and Node.js `crypto`:
 
-1. **Registration**: User submits email + password → Better Auth sends verification email via Resend → User clicks link → `emailVerified` set to true
-2. **Login**: Email + password → JWT access token (short-lived) + refresh token (long-lived) → stored in httpOnly cookies
-3. **Session**: On page load, client calls `/api/auth/me` → token validated → user data returned
-4. **Password Reset**: Email → reset token (expires in 1 hour) → new password
-5. **Security**: Rate limiting on auth endpoints (10 req/15min), httpOnly cookies prevent XSS, token rotation on refresh
+1. **Registration**: User submits email + password → bcryptjs hashes password → User created with email verification token (crypto.randomBytes) → Resend sends verification email → User clicks link → `emailVerified` set to true
+2. **Login**: Email + password → bcryptjs.compare() → JWT access token (15min, signed with JWT_SECRET) + refresh token (7d, signed with JWT_REFRESH_SECRET) → refresh token stored in httpOnly cookie, access token returned in body
+3. **Session**: On page load, client calls `/api/v1/auth/me` with Bearer token → token validated via jwt.verify → user data returned
+4. **Password Reset**: Email → crypto-generated reset token (1 hour expiry) → stored on user document → Resend sends reset email → User submits new password → bcryptjs re-hashes
+5. **Security**: Rate limiting on auth endpoints (10 req/15min), httpOnly cookies prevent XSS, access tokens short-lived to limit damage from theft, refresh tokens enable silent rotation
 
 ---
 

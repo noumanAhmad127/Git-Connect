@@ -1,6 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
 import type { ZodSchema } from 'zod';
-import { ZodError } from 'zod';
 
 interface ValidationSchemas {
   body?: ZodSchema;
@@ -9,7 +8,7 @@ interface ValidationSchemas {
 }
 
 export function validate(schemas: ValidationSchemas) {
-  return (req: Request, res: Response, next: NextFunction): void => {
+  return (req: Request, _res: Response, next: NextFunction): void => {
     try {
       if (schemas.body) {
         req.body = schemas.body.parse(req.body) as never;
@@ -22,26 +21,6 @@ export function validate(schemas: ValidationSchemas) {
       }
       next();
     } catch (error) {
-      if (error instanceof ZodError) {
-        const details: Record<string, string[]> = {};
-        for (const issue of error.issues) {
-          const path = issue.path.join('.');
-          if (!details[path]) {
-            details[path] = [];
-          }
-          details[path].push(issue.message);
-        }
-
-        res.status(400).json({
-          success: false,
-          error: {
-            code: 'VALIDATION_ERROR',
-            message: 'Request validation failed',
-            details,
-          },
-        });
-        return;
-      }
       next(error);
     }
   };

@@ -16,7 +16,18 @@ export default function RegisterPage() {
         navigate('/verify-email');
       })
       .catch((err: unknown) => {
-        setError(err instanceof Error ? err.message : 'Failed to register');
+        const error = err as {
+          data?: { error?: { message?: string; details?: Record<string, string[]> } };
+        };
+        const errorBody = error.data?.error;
+        const msg = errorBody?.message;
+        const details = errorBody?.details;
+        if (details) {
+          const allMessages = Object.values(details).flat().join('. ');
+          setError(allMessages);
+        } else {
+          setError(msg ?? 'Failed to register');
+        }
       });
   };
 
@@ -67,6 +78,9 @@ export default function RegisterPage() {
               placeholder="johndoe"
               required
             />
+            <p className="text-muted-foreground text-xs">
+              3-30 characters, letters, numbers, and underscores only
+            </p>
           </div>
 
           <div className="space-y-2">
@@ -97,6 +111,9 @@ export default function RegisterPage() {
               placeholder="At least 8 characters"
               required
             />
+            <p className="text-muted-foreground text-xs">
+              Min 8 chars, with uppercase, lowercase, and a number
+            </p>
           </div>
 
           <button

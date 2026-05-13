@@ -6,6 +6,7 @@ import {
 } from '@/features/posts/postApi';
 import { useAuth } from '@/features/auth/useAuth';
 import { Heart, MessageCircle, ArrowLeft, Trash2 } from 'lucide-react';
+import MarkdownRenderer from '@/components/markdown/MarkdownRenderer';
 import CommentThread from '@/components/posts/CommentThread';
 
 export default function PostDetailPage() {
@@ -96,7 +97,7 @@ export default function PostDetailPage() {
 
           {/* Content */}
           <div className="mt-4">
-            <p className="whitespace-pre-wrap text-sm leading-relaxed">{post.content}</p>
+            <MarkdownRenderer content={post.content} />
           </div>
 
           {/* Tags */}

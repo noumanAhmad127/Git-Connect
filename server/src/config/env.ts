@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import dotenv from 'dotenv';
 
-dotenv.config();
+dotenv.config({ path: '../.env' });
 
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
@@ -10,8 +10,7 @@ const envSchema = z.object({
 
   MONGODB_URI: z.string().url('MongoDB URI must be a valid URL'),
 
-  BETTER_AUTH_SECRET: z.string().min(32, 'Better Auth secret must be at least 32 characters'),
-  BETTER_AUTH_URL: z.string().url('Better Auth URL must be a valid URL'),
+  API_URL: z.string().url('API URL must be a valid URL').default('http://localhost:4000'),
 
   JWT_SECRET: z.string().min(32, 'JWT secret must be at least 32 characters'),
   JWT_REFRESH_SECRET: z.string().min(32, 'JWT refresh secret must be at least 32 characters'),

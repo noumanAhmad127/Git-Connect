@@ -10,9 +10,14 @@ import { env } from '../../config/env.js';
 import { User } from '../auth/user.model.js';
 import crypto from 'node:crypto';
 
+const uploadDir = path.resolve(env.UPLOAD_DIR);
+
+// Ensure upload directory exists
+await fs.mkdir(uploadDir, { recursive: true }).catch(() => undefined);
+
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => {
-    cb(null, env.UPLOAD_DIR);
+    cb(null, uploadDir);
   },
   filename: (_req, file, cb) => {
     const ext = path.extname(file.originalname);
@@ -47,7 +52,7 @@ export const uploadAvatar = asyncHandler(async (req: Request, res: Response) => 
   }
 
   const processedFilename = `avatar-${crypto.randomUUID()}.webp`;
-  const outputPath = path.join(env.UPLOAD_DIR, processedFilename);
+  const outputPath = path.join(uploadDir, processedFilename);
 
   await sharp(req.file.path)
     .resize(256, 256, { fit: 'cover' })
@@ -59,8 +64,8 @@ export const uploadAvatar = asyncHandler(async (req: Request, res: Response) => 
   const user = await User.findById(req.userId);
   if (user) {
     if (user.avatar) {
-      const oldPath = path.join(env.UPLOAD_DIR, path.basename(user.avatar));
-      await fs.unlink(oldPath).catch(() => {});
+      const oldPath = path.join(uploadDir, path.basename(user.avatar));
+      await fs.unlink(oldPath).catch(() => undefined);
     }
     user.avatar = `/uploads/${processedFilename}`;
     await user.save();

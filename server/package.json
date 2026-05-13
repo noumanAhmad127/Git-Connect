@@ -10,10 +10,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@better-auth/mongo-adapter": "^1.6.0",
     "@gitconnect/shared": "*",
     "bcryptjs": "^3.0.3",
-    "better-auth": "^1.6.0",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",

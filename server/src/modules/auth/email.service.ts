@@ -5,7 +5,7 @@ import { logger } from '../../config/logger.js';
 const resend = new Resend(env.RESEND_API_KEY);
 
 export async function sendVerificationEmail(email: string, token: string): Promise<void> {
-  const verificationUrl = `${env.BETTER_AUTH_URL}/api/v1/auth/verify-email?token=${token}`;
+  const verificationUrl = `${env.API_URL}/api/v1/auth/verify-email?token=${token}`;
 
   try {
     await resend.emails.send({

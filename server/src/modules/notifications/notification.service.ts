@@ -1,5 +1,22 @@
 import { Notification, type INotification } from './notification.model.js';
 import type { NotificationType } from './notification.model.js';
+import type mongoose from 'mongoose';
+
+interface ActorInfo {
+  _id: mongoose.Types.ObjectId;
+  name: string;
+  username: string;
+  avatar?: string;
+}
+
+interface PopulatedNotification {
+  _id: mongoose.Types.ObjectId;
+  type: NotificationType;
+  actor: ActorInfo;
+  link: string;
+  read: boolean;
+  createdAt: Date;
+}
 
 interface NotificationResponse {
   id: string;
@@ -15,9 +32,9 @@ export async function createNotification(
   type: NotificationType,
   actorId: string,
   link: string,
-): Promise<INotification> {
+): Promise<INotification | null> {
   if (recipientId === actorId) {
-    return null as any;
+    return null;
   }
   return Notification.create({ recipient: recipientId, type, actor: actorId, link });
 }
@@ -39,11 +56,12 @@ export async function getNotifications(
 
   return {
     notifications: notifications.map((n) => {
-      const actor = (n as any).actor;
+      const notif = n as unknown as PopulatedNotification;
+      const actor = notif.actor;
       return {
-        id: n._id.toString(),
-        type: n.type,
-        actor: actor?.name
+        id: notif._id.toString(),
+        type: notif.type,
+        actor: actor.name
           ? {
               id: actor._id.toString(),
               name: actor.name,
@@ -51,9 +69,9 @@ export async function getNotifications(
               avatar: actor.avatar,
             }
           : { id: n.actor.toString(), name: 'Unknown', username: 'unknown' },
-        link: n.link,
-        read: n.read,
-        createdAt: n.createdAt.toISOString(),
+        link: notif.link,
+        read: notif.read,
+        createdAt: notif.createdAt.toISOString(),
       };
     }),
     total,

@@ -1,4 +1,5 @@
 import express from 'express';
+import path from 'path';
 import helmet from 'helmet';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
@@ -11,6 +12,7 @@ import uploadRoutes from './modules/uploads/upload.routes.js';
 import postRoutes from './modules/posts/post.routes.js';
 import messagingRoutes from './modules/messaging/messaging.routes.js';
 import notificationRoutes from './modules/notifications/notification.routes.js';
+import searchRoutes from './modules/search/search.routes.js';
 
 export function createApp(): express.Application {
   const app = express();
@@ -28,7 +30,7 @@ export function createApp(): express.Application {
   app.use('/api/', apiLimiter);
 
   // Static files (uploads)
-  app.use('/uploads', express.static('public/uploads'));
+  app.use('/uploads', express.static(path.resolve('public/uploads')));
 
   // Health check
   app.get('/api/v1/health', (_req, res) => {
@@ -42,6 +44,7 @@ export function createApp(): express.Application {
   app.use('/api/v1', postRoutes);
   app.use('/api/v1', messagingRoutes);
   app.use('/api/v1', notificationRoutes);
+  app.use('/api/v1', searchRoutes);
 
   // Error handling (must be last)
   app.use(errorHandler);

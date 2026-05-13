@@ -1,5 +1,7 @@
 import { useState } from 'react';
 import { useCreatePostMutation } from '@/features/posts/postApi';
+import MarkdownRenderer from '@/components/markdown/MarkdownRenderer';
+import { Eye, Edit3 } from 'lucide-react';
 
 interface Props {
   onSuccess?: () => void;
@@ -10,6 +12,7 @@ export default function PostForm({ onSuccess }: Props) {
   const [content, setContent] = useState('');
   const [tagInput, setTagInput] = useState('');
   const [tags, setTags] = useState<string[]>([]);
+  const [showPreview, setShowPreview] = useState(false);
 
   const addTag = () => {
     const tag = tagInput.trim().replace(/^#/, '');
@@ -48,15 +51,60 @@ export default function PostForm({ onSuccess }: Props) {
       }}
       className="bg-card rounded-lg border p-4"
     >
-      <textarea
-        rows={3}
-        value={content}
-        onChange={(e) => {
-          setContent(e.target.value);
-        }}
-        placeholder="What's on your mind?"
-        className="border-input bg-background focus:border-primary focus:ring-primary w-full resize-y rounded-md border px-3 py-2 text-sm outline-none focus:ring-1"
-      />
+      {/* Editor / Preview toggle */}
+      <div className="mb-2 flex items-center justify-between">
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => {
+              setShowPreview(false);
+            }}
+            className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs transition-colors ${
+              !showPreview
+                ? 'bg-primary/10 text-primary'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <Edit3 className="h-3 w-3" />
+            Write
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setShowPreview(true);
+            }}
+            className={`inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs transition-colors ${
+              showPreview
+                ? 'bg-primary/10 text-primary'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <Eye className="h-3 w-3" />
+            Preview
+          </button>
+        </div>
+        <span className="text-muted-foreground text-xs">{content.length}/50000</span>
+      </div>
+
+      {showPreview ? (
+        <div className="border-input bg-background min-h-[100px] rounded-md border p-3">
+          {content.trim() ? (
+            <MarkdownRenderer content={content} />
+          ) : (
+            <p className="text-muted-foreground text-sm italic">Nothing to preview</p>
+          )}
+        </div>
+      ) : (
+        <textarea
+          rows={5}
+          value={content}
+          onChange={(e) => {
+            setContent(e.target.value);
+          }}
+          placeholder="What's on your mind? (Markdown supported)"
+          className="border-input bg-background focus:border-primary focus:ring-primary w-full resize-y rounded-md border px-3 py-2 text-sm outline-none focus:ring-1"
+        />
+      )}
 
       {/* Tags */}
       <div className="mt-3 flex flex-wrap items-center gap-2">

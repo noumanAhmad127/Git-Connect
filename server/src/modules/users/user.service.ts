@@ -2,6 +2,7 @@ import { User } from '../auth/user.model.js';
 import { AppError } from '../../shared/errors/AppError.js';
 import { createNotification } from '../notifications/notification.service.js';
 import { emitToUser } from '../../socket/index.js';
+import type mongoose from 'mongoose';
 
 interface PublicProfile {
   id: string;
@@ -99,42 +100,40 @@ export async function updateProfile(
       twitter?: string;
       website?: string;
     };
+    education: {
+      degree: string;
+      institution: string;
+      startDate: string;
+      endDate?: string;
+      description?: string;
+    }[];
+    experience: {
+      title: string;
+      company: string;
+      location?: string;
+      startDate: string;
+      endDate?: string;
+      current: boolean;
+      description?: string;
+    }[];
+    portfolio: {
+      title: string;
+      description?: string;
+      url?: string;
+      githubUrl?: string;
+      screenshots: string[];
+    }[];
   }>,
 ): Promise<PublicProfile> {
-  const user = await User.findById(userId);
+  const user = await User.findByIdAndUpdate(
+    userId,
+    { $set: updates },
+    { new: true, runValidators: true },
+  );
   if (!user) {
     throw new AppError('User not found', 404, 'USER_NOT_FOUND');
   }
 
-  if (updates.name !== undefined) {
-    user.name = updates.name;
-  }
-  if (updates.headline !== undefined) {
-    user.headline = updates.headline;
-  }
-  if (updates.bio !== undefined) {
-    user.bio = updates.bio;
-  }
-  if (updates.skills !== undefined) {
-    user.skills = updates.skills;
-  }
-  if (updates.location !== undefined) {
-    user.location = updates.location;
-  }
-  if (updates.experienceYears !== undefined) {
-    user.experienceYears = updates.experienceYears;
-  }
-  if (updates.availableForMentorship !== undefined) {
-    user.availableForMentorship = updates.availableForMentorship;
-  }
-  if (updates.availableForCollaboration !== undefined) {
-    user.availableForCollaboration = updates.availableForCollaboration;
-  }
-  if (updates.socialLinks !== undefined) {
-    user.socialLinks = updates.socialLinks;
-  }
-
-  await user.save();
   return toPublicProfile(user, userId);
 }
 
@@ -206,7 +205,7 @@ export async function toggleFollow(
       $pull: { following: followerObjectId },
     });
   } else {
-    target.followers.push(followerId as any);
+    target.followers.push(followerId as unknown as mongoose.Types.ObjectId);
     await User.findByIdAndUpdate(followerId, {
       $push: { following: followerObjectId },
     });
@@ -216,7 +215,9 @@ export async function toggleFollow(
       followerId,
       `/developers/${targetUsername}`,
     );
-    if (notif) emitToUser(target._id.toString(), 'notification', notif);
+    if (notif) {
+      emitToUser(target._id.toString(), 'notification', notif);
+    }
   }
 
   await target.save();

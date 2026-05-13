@@ -51,6 +51,9 @@ export const updateProfileSchema = z.object({
   availableForMentorship: z.boolean().optional(),
   availableForCollaboration: z.boolean().optional(),
   socialLinks: socialLinksSchema.optional(),
+  education: z.array(educationSchema).optional(),
+  experience: z.array(experienceSchema).optional(),
+  portfolio: z.array(portfolioSchema).optional(),
 });
 
 export const addEducationSchema = z.object({ education: educationSchema });

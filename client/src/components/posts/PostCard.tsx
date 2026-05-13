@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { Heart, MessageCircle, MoreHorizontal } from 'lucide-react';
 import { useAuth } from '@/features/auth/useAuth';
 import { useToggleLikeMutation, useDeletePostMutation } from '@/features/posts/postApi';
+import { FormattedContent } from '@/lib/textFormatting';
 import type { Post } from '@/features/posts/postApi';
 
 interface Props {
@@ -64,7 +65,9 @@ export default function PostCard({ post }: Props) {
 
         {/* Content */}
         <Link to={`/posts/${post.id}`} className="mt-3 block">
-          <p className="whitespace-pre-wrap text-sm leading-relaxed">{post.content}</p>
+          <p className="whitespace-pre-wrap text-sm leading-relaxed">
+            <FormattedContent content={post.content} />
+          </p>
         </Link>
 
         {/* Tags */}

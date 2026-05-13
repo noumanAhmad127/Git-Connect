@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { ProtectedRoute } from '@/components/common/ProtectedRoute';
 import { useGetFeedQuery } from '@/features/posts/postApi';
 import PostCard from '@/components/posts/PostCard';
 import PostForm from '@/components/posts/PostForm';
 
-function FeedContent() {
+export default function FeedPage() {
   const [page, setPage] = useState(1);
   const { data, isLoading, isFetching } = useGetFeedQuery({ page, limit: 20 });
 
@@ -74,13 +73,5 @@ function FeedContent() {
         </>
       )}
     </div>
-  );
-}
-
-export default function FeedPage() {
-  return (
-    <ProtectedRoute>
-      <FeedContent />
-    </ProtectedRoute>
   );
 }
